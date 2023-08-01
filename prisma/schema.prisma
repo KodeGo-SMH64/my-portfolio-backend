@@ -1,0 +1,50 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model Dashboard {
+  id         String  @id @default(uuid())
+  name       String
+  userId     String
+  billboards  BillBoard[] @relation("DashboardToBillboard")
+  categories Category[] @relation("DashboardToCategory")
+  createdAt  DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BillBoard {
+  id          String @id @default(uuid())
+  dboardId    String
+  dashboard   Dashboard @relation("DashboardToBillboard", fields: [dboardId], references: [id])
+  label       String
+  imageUrl    String
+  categories Category[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([dboardId])
+}
+
+model Category {
+  id String @id @default(uuid())
+  dboardId String
+  dashboard Dashboard @relation("DashboardToCategory" , fields: [dboardId], references: [id])
+  billboardId String
+  billboard BillBoard @relation(fields: [billboardId], references: [id])
+  name String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+
+@@index([dboardId])
+@@index([billboardId])
+}
